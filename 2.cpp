@@ -11,10 +11,11 @@ using namespace std;
 
 const int size = 9;
 vector <int> sequence;
+int w[size][size] = {0};
 
 
 //返回两个数组相减,结果保存在第一个数组中返回
-void mminus (int* w1, int* w2)
+void mminus (vector <int> & w1, const int* w2)
 {
     for(int i=0; i<size; i++)
     {
@@ -23,32 +24,46 @@ void mminus (int* w1, int* w2)
 
 }
 
-//int mminus(int* w1, int* w2)
 
 
-void search(int* pos, int (*w)[size])
+//返回枚举的最小值
+vector<int>  enumerate(int * initpos)
 {
-    int num = accumulate(pos, pos+size, 0, [=](int x, int y){return (x+y);});
-    int difference = 0;
-    int j;
-    int result[size] = {0};
-    for(int i=0;i<size;i++)
+    vector <int> result; //记录最终的结果
+    vector <int> weight(size, 0);
+    int minnum = 1000;
+    weight[0] = -1;
+    int a =0;
+    while(a<27)
     {
-        memcpy(result, pos, sizeof(int)*size);
-        mminus(result, w[i]);
-        int result_num = accumulate(result, result+size, 0, [=](int x, int y){return (x+y);});
-        if ((num-result_num)>difference)
+        int c = 0;  //个位
+        weight[c]++;
+        while(weight[c] > 3)
         {
-            difference =  num-result_num;
-            j=i;
+            weight[c] = 0;
+            c++;
+            weight[c]++;
         }
+        vector <int> tmp(initpos, initpos+size);
+        for(int i =0; i<size; i++)
+        {
+            for(int j =0; j<weight[i]; j++)
+                mminus(tmp, w[i]);
+        }
+        if(accumulate(tmp.begin(), tmp.end(), 0, [=](int x, int y){return x+y;})== 0)
+        {
+            int num = accumulate(weight.begin(), weight.end(), 0, [=](int x, int y){return x+y;});
+            if (num < minnum)
+            {
+                minnum = num;
+                result = weight;
+            }
+        }
+        a = accumulate(weight.begin(),weight.end(), 0, [=](int x, int y){return x+y;});
     }
-    if(difference>0)
-    {
-        mminus(pos, w[j]);
-        sequence.push_back(j);
-        search(pos, w);
-    }
+    return result;
+
+
 
 }
 
@@ -57,7 +72,6 @@ void search(int* pos, int (*w)[size])
 
 int main()
 {
-    int w[size][size] = {0};
     w[0][0] = 1;w[0][1] = 1;w[0][3] = 1; w[0][4] = 1;
     w[1][0] = 1;w[1][1] = 1;w[1][2] = 1;
     w[2][1] = 1;w[2][2] = 1;w[2][4] = 1;w[2][5] = 1;
@@ -67,22 +81,18 @@ int main()
     w[6][3] = 1;w[6][4] = 1;w[6][6] = 1;w[6][7] = 1;
     w[7][6] = 1;w[7][7] = 1;w[7][8] = 1;
     w[8][4] = 1;w[8][5] = 1;w[8][7] = 1;w[8][8] = 1;
-//    for(int i =0; i<size; i++)
-//    {
-//        for(int j=0; j<size; j++)
-//            cout<<w[i][j];
-//        cout<<endl;
-//    }
-    int sum[9] = {4, 5, 3, 5, 6, 4, 3, 4, 3};
-    int initpos[9] = {3, 3, 0, 2, 2, 2, 2, 1, 2};
+    int initpos[9] = {0};
+    for(int i =0;i<size;i++)
+    {
+        cin>>initpos[i];
+    }
     for_each(initpos,initpos+9,[&](int& x){x=(4-x)%4;});
-//    for(int i=0; i<size; i++)
-//        cout<<initpos[i];
-    search(initpos, w);
-    sort(sequence.begin(),sequence.end());
-    ostream_iterator <int> oit(cout,"");
-    copy(sequence.begin(),sequence.end(),oit);
-
+    vector<int> result = enumerate(initpos);
+    for(int i =0; i<size; i++)
+        for(int j =0; j<result[i]; j++)
+        {
+            cout<<(i+1)<<" ";
+        }
 
     return 0;
 }
