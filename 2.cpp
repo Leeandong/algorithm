@@ -10,12 +10,11 @@ using namespace std;
 
 
 const int size = 9;
-vector <int> sequence;
 int w[size][size] = {0};
 
 
 //返回两个数组相减,结果保存在第一个数组中返回
-void mminus (vector <int> & w1, const int* w2)
+inline void mminus (vector <int> & w1, const int* w2)
 {
     for(int i=0; i<size; i++)
     {
@@ -23,7 +22,6 @@ void mminus (vector <int> & w1, const int* w2)
     }
 
 }
-
 
 
 //返回枚举的最小值
@@ -34,7 +32,7 @@ vector<int>  enumerate(int * initpos)
     int minnum = 1000;
     weight[0] = -1;
     int a =0;
-    while(a<27)
+    while(a<9)   //仅仅枚举前三条
     {
         int c = 0;  //个位
         weight[c]++;
@@ -44,27 +42,44 @@ vector<int>  enumerate(int * initpos)
             c++;
             weight[c]++;
         }
+
         vector <int> tmp(initpos, initpos+size);
-        for(int i =0; i<size; i++)
+        for(int i =0; i<3; i++)
         {
             for(int j =0; j<weight[i]; j++)
                 mminus(tmp, w[i]);
         }
-        if(accumulate(tmp.begin(), tmp.end(), 0, [=](int x, int y){return x+y;})== 0)
+        weight[3] = tmp[0];
+        weight[4] = tmp[1];
+        weight[5] = tmp[2];
+        for(int i =3; i<6; i++)
         {
-            int num = accumulate(weight.begin(), weight.end(), 0, [=](int x, int y){return x+y;});
+            for(int j =0; j<weight[i]; j++)
+                mminus(tmp, w[i]);
+        }
+        weight[6] = tmp[3];
+        for(int j =0; j<weight[6]; j++)
+            mminus(tmp, w[6]);
+        weight[7] = tmp[6];
+        weight[8] = tmp[5];
+        for(int i =7; i<size; i++)
+        {
+            for(int j =0; j<weight[i]; j++)
+                mminus(tmp, w[i]);
+        }
+
+        if(accumulate(tmp.begin(), tmp.end(), 0)== 0)
+        {
+            int num = accumulate(weight.begin(), weight.end(), 0);
             if (num < minnum)
             {
                 minnum = num;
                 result = weight;
             }
         }
-        a = accumulate(weight.begin(),weight.end(), 0, [=](int x, int y){return x+y;});
+        a = accumulate(weight.begin(),weight.begin()+3, 0);
     }
     return result;
-
-
-
 }
 
 
@@ -82,9 +97,9 @@ int main()
     w[7][6] = 1;w[7][7] = 1;w[7][8] = 1;
     w[8][4] = 1;w[8][5] = 1;w[8][7] = 1;w[8][8] = 1;
     int initpos[9] = {0};
-    for(int i =0;i<size;i++)
+    for(int& i: initpos)
     {
-        cin>>initpos[i];
+        cin>>i;
     }
     for_each(initpos,initpos+9,[&](int& x){x=(4-x)%4;});
     vector<int> result = enumerate(initpos);
