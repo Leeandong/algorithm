@@ -32,7 +32,7 @@ vector<int>  enumerate(int * initpos)
     int minnum = 1000;
     weight[0] = -1;
     int a =0;
-    while(a<9)   //仅仅枚举前三条
+    while(a<9)   //仅仅枚举前三条,后面的条的状态可以被前三条所确定
     {
         int c = 0;  //个位
         weight[c]++;
